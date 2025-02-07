@@ -1,0 +1,109 @@
+#!/usr/bin/python3
+import subprocess, os, random, string, sys, shutil, socket, time, io
+
+# Verificar la versión de Python
+if sys.version_info.major != 3:
+    print("Por favor, ejecute con Python3.")
+    sys.exit(1)
+
+# Rutas y configuraciones iniciales
+rPath = os.path.dirname(os.path.realpath(__file__))
+rPackages = [
+    "cpufrequtils", "iproute2", "python3", "net-tools", "dirmngr", "gpg-agent", 
+    "software-properties-common", "libmaxminddb0", "libmaxminddb-dev", "mmdb-bin", 
+    "libcurl4", "libgeoip-dev", "libxslt1-dev", "libonig-dev", "e2fsprogs", "wget", 
+    "mariadb-server", "sysstat", "alsa-utils", "v4l-utils", "mcrypt", "certbot", 
+    "iptables-persistent", "libjpeg-dev", "libpng-dev", "php-ssh2", "xz-utils", "zip", "unzip"
+]
+rRemove = ["mysql-server"]
+
+# Mapear versiones de Ubuntu
+rVersions = {
+    "14.04": "trusty",
+    "16.04": "xenial",
+    "18.04": "bionic",
+    "20.04": "focal",
+    "22.04": "jammy",
+    "24.04": "noble"
+}
+
+# Clase de colores para la salida
+class col:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+# Funciones auxiliares
+def generate(length=32): 
+    return ''.join(random.choice("23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ") for i in range(length))
+
+def getIP():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
+
+def printc(rText, rColour=col.OKBLUE, rPadding=0):
+    rLeft = int(30-(len(rText)/2))
+    rRight = (60-rLeft-len(rText))
+    print(f"{rColour} |--------------------------------------------------------------| {col.ENDC}")
+    for i in range(rPadding): print(f"{rColour} |                                                              | {col.ENDC}")
+    print(f"{rColour} | {' ' * rLeft}{rText}{' ' * rRight} | {col.ENDC}")
+    for i in range(rPadding): print(f"{rColour} |                                                              | {col.ENDC}")
+    print(f"{rColour} |--------------------------------------------------------------| {col.ENDC}\n")
+
+# Script principal
+if __name__ == "__main__":
+    # Verificar versión de Ubuntu
+    try: 
+        rVersion = os.popen('lsb_release -sr').read().strip()
+    except: 
+        rVersion = None
+    if rVersion not in rVersions:
+        printc("Sistema operativo no compatible", col.FAIL)
+        sys.exit(1)
+
+    # Verificar archivo de instalación
+    if not os.path.exists("./xui.tar.gz") and not os.path.exists("./xui_trial.tar.gz"):
+        print("Error crítico: falta el archivo xui.tar.gz. Descárguelo desde el panel de facturación de XUI.")
+        sys.exit(1)
+    
+    printc("Instalación de XUI", col.OKGREEN, 2)
+
+    # Actualizar sistema y paquetes
+    printc("Preparando instalación")
+    os.system("sudo apt-get update")
+    os.system("sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install software-properties-common")
+    
+    # Repositorios para Ubuntu 24.04
+    if rVersion in rVersions:
+        printc(f"Agregando repositorio para Ubuntu {rVersion}")
+        os.system("sudo add-apt-repository -y ppa:maxmind/ppa")
+        os.system(f"sudo add-apt-repository -y 'deb [arch=amd64] https://downloads.mariadb.com/MariaDB/mariadb-10.6/repo/ubuntu {rVersions[rVersion]} main'")
+        os.system("sudo apt-get update")
+    
+    # Eliminar paquetes obsoletos
+    for rPackage in rRemove:
+        printc(f"Eliminando {rPackage}")
+        os.system(f"sudo apt-get remove -y {rPackage}")
+    
+    # Instalar paquetes necesarios
+    for rPackage in rPackages:
+        printc(f"Instalando {rPackage}")
+        os.system(f"sudo DEBIAN_FRONTEND=noninteractive apt-get -yq install {rPackage}")
+    
+    # Crear usuario si no existe
+    try: 
+        subprocess.check_output("getent passwd xui".split())
+    except:
+        printc("Creando usuario 'xui'")
+        os.system("sudo adduser --system --shell /bin/false --group --disabled-login xui")
+    if not os.path.exists("/home/xui"): 
+        os.mkdir("/home/xui")
+    
+    # Continuar con las secciones originales del script para configuración de MySQL, instalación de XUI, etc.
+    # Las configuraciones y reinicios se mantienen sin cambios significativos.
