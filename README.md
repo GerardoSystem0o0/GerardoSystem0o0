@@ -1,9 +1,11 @@
-## Hi there 👋
-
+## Hola Bienvenido 👋
+## 🔭 ✨Television Digital-IPTV✨
+## 🌱VMWARE con ubuntu 24.04 noble server 
+## 🤔XUI ONE ultima version, Astra Cesbo 
+## ⚡Instalacion para provedores de internet 300.000 CLP 
+## 📫 contacto +56997911199
 <!--
-**GerardoSystem0o0/GerardoSystem0o0** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-
-Here are some ideas to get you started:
+**GerardoSystem0o0/GerardoSystem0o0** .
 
 - 🔭 I’m currently working on ...
 - 🌱 I’m currently learning ...
